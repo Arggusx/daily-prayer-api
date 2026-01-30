@@ -8,6 +8,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", dailyPrayerRoutes);
+app.get("/", (req, res) => {
+    res.send("Daily Prayer API está rodando!");
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
