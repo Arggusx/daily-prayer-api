@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.use("/api", dailyPrayerRoutes);
 app.get("/", (req, res) => {
-    res.send("Daily Prayer API está rodando!");
+    res.send("A API do menino Dougilinhas está rodando com toda força!");
 });
 
 const PORT = process.env.PORT || 3000;
