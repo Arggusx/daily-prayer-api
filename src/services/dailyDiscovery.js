@@ -1,9 +1,6 @@
 import * as cheerio from "cheerio";
-import { text } from "express";
-import { traduzirTexto } from "./translate.js";
 
 export async function getDailyPrayer() {
-    const traduzido = await traduzirTexto(textPrayer);
 
     const apiRes = await fetch(
         "https://discoverybiblestudy.org/daily/api/"
@@ -21,7 +18,7 @@ export async function getDailyPrayer() {
     return {
         ref: apiData.ref,
         date: apiData.date,
-        text: traduzido,
+        text: textPrayer,
         textRef: ref,
     };
 }
