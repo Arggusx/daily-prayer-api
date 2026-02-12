@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 import Tesseract from "tesseract.js";
-import { translateText } from "./translate.js";
+// import { translateText } from "./translate.js";
 
 export async function getImage(url) {
     const response = await fetch(url);
@@ -69,14 +69,14 @@ export async function getDailyPrayer() {
 
     const $ = cheerio.load(html);
     const textPrayer = $(".scp").text().trim();
-    const translatedPrayer = await translateText(textPrayer, "pt");
+    // const translatedPrayer = await translateText(textPrayer, "pt");
     const ref = $(".ref").text().trim();
 
     return {
         ref: apiData.ref,
         date: apiData.date,
         textOriginal: textPrayer,
-        textTranslate: translatedPrayer,
+        // textTranslate: translatedPrayer,
         textRef: ref
     };
 }
@@ -99,11 +99,11 @@ export async function extractImage(imageUrl) {
 
     const { data: { text } } = await Tesseract.recognize(buffer, "eng");
 
-    const translatedText = await translateText(text, "pt");
+    // const translatedText = await translateText(text, "pt");
 
     return {
         originalText: text.trim(),
-        translatedText: translatedText
+        // translatedText: translatedText
     }
 }
 
