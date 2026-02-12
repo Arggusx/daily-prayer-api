@@ -12,8 +12,7 @@ app.get("/", (req, res) => {
     res.send("A API do menino Dougilinhas está rodando com toda força!");
 });
 
-app.get("/", (req, res) => {
-    res.send("A API do menino Dougilinhas está rodando com toda força!");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`API rodando na porta ${PORT}`);
 });
-
-export default app;

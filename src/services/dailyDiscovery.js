@@ -48,7 +48,11 @@ export async function getDailyVerse() {
 
     imageUrl = new URL(imageUrl, baseUrl).href;
 
-    const ocrResult = await extractImage(imageUrl);
+    // const ocrResult = await extractImage(imageUrl);
+    const ocrResult = {
+        originalText: "teste",
+        translatedText: "teste"
+    };
 
     return {
         imageUrl,
@@ -81,29 +85,29 @@ export async function getDailyPrayer() {
     };
 }
 
-export async function extractImage(imageUrl) {
-    const response = await fetch(imageUrl, {
-        headers: {
-            "User-Agent": "Mozilla/5.0"
-        }
-    });
+// export async function extractImage(imageUrl) {
+//     const response = await fetch(imageUrl, {
+//         headers: {
+//             "User-Agent": "Mozilla/5.0"
+//         }
+//     });
 
-    console.log("CONTENT-TYPE:", response.headers.get("content-type"));
+//     console.log("CONTENT-TYPE:", response.headers.get("content-type"));
 
-    if (!response.headers.get("content-type")?.startsWith("image/")) {
-        throw new Error("URL não retornou uma imagem válida");
-    }
+//     if (!response.headers.get("content-type")?.startsWith("image/")) {
+//         throw new Error("URL não retornou uma imagem válida");
+//     }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+//     const arrayBuffer = await response.arrayBuffer();
+//     const buffer = Buffer.from(arrayBuffer);
 
-    const { data: { text } } = await Tesseract.recognize(buffer, "eng");
+//     const { data: { text } } = await Tesseract.recognize(buffer, "eng");
 
-    const translatedText = await translateText(text, "pt");
+//     const translatedText = await translateText(text, "pt");
 
-    return {
-        originalText: text.trim(),
-        translatedText: translatedText
-    }
-}
+//     return {
+//         originalText: text.trim(),
+//         translatedText: translatedText
+//     }
+// }
 
