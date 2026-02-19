@@ -1,22 +1,21 @@
 import express from "express";
-// import { getDailyPrayer, getDailyVerse } from "../services/dailyDiscovery.js";
+import { getDailyPrayer } from "../services/dailyDiscovery.js";
 
 
 const router = express.Router();
 
 router.get("/daily", async (req, res) => {
-    console.log("Buscando conteúdo diário...");
     try {
-        // const prayer = await getDailyPrayer();
+        console.log("Buscando conteúdo diário...");
+        const prayer = await getDailyPrayer();
         // const verse = await getDailyVerse();
-        console.log("Enviando resposta de teste...");
+
         return res.json({
-            message: "Se você ler isso, o problema está nas funções getDaily!",
-            debug: "Comente as linhas acima e descomente estas para testar."
+            prayer
         });
 
     } catch (err) {
-        console.error("Erro detectado:", err);
+        console.error(err);
         return res.status(500).json({ error: "Erro ao buscar conteúdo diário" });
     }
 });
