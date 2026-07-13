@@ -1,25 +1,23 @@
 import express from "express";
-import { getDailyPrayer } from "../services/dailyDiscovery.js";
-
+import { getDailyReflection } from "../services/dailyDiscovery.js";
 
 const router = express.Router();
 
-router.get("/daily", async (req, res) => {
+router.get("/daily-reflection", async (req, res) => {
     try {
-        console.log("Buscando conteúdo diário...");
-        const prayer = await getDailyPrayer();
-        // const verse = await getDailyVerse();
+        console.log("Buscando reflexão diária...");
+        const reflection = await getDailyReflection();
 
-        return res.json({
-            prayer
-        });
+        // O retorno já está no formato exigido: { success, date, title, content }
+        return res.json(reflection);
 
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: "Erro ao buscar conteúdo diário" });
+        return res.status(500).json({ 
+            success: false, 
+            error: "Erro ao buscar conteúdo diário" 
+        });
     }
 });
-
-
 
 export default router;

@@ -1,111 +1,68 @@
 import * as cheerio from "cheerio";
-import { translateText } from "./translate.js";
-// import Tesseract from "tesseract.js";
 
-export async function getDailyPrayer() {
+// Cache simples em memória
+let cache = {
+    date: null,
+    data: null
+};
 
-    const apiRes = await fetch(
-        "https://discoverybiblestudy.org/daily/api/"
-    );
-    const apiData = await apiRes.json();
+export async function getDailyReflection() {
+    // Verifica se temos cache para a data de hoje (YYYY-MM-DD)
+    const today = new Date().toISOString().split("T")[0];
+    if (cache.date === today && cache.data) {
+        console.log("Retornando reflexão do cache...");
+        return cache.data;
+    }
 
-    const pageResponse = await fetch(apiData.verseUrl);
-    const html = await pageResponse.text();
+    console.log("Fazendo web scraping da reflexão diária (Canção Nova)...");
+    try {
+        const response = await fetch("https://homilia.cancaonova.com/pb/");
+        
+        if (!response.ok) {
+            throw new Error(`Erro na requisição: ${response.status}`);
+        }
 
-    const $ = cheerio.load(html);
-    const textPrayer = $(".scp").text().trim();
-    const translatedPrayer = await translateText(textPrayer, "pt");
-    const ref = $(".ref").text().trim();
+        const html = await response.text();
+        const $ = cheerio.load(html);
 
-    return {
-        ref: apiData.ref,
-        date: apiData.date,
-        textOriginal: textPrayer,
-        textTranslate: translatedPrayer,
-        textRef: ref
-    };
+        // Extrai o título (normalmente no h1.entry-title)
+        let title = $("h1.entry-title span").text().trim();
+        if (!title) {
+            title = $("h1.entry-title").text().trim();
+        }
+
+        // Extrai os parágrafos do corpo da reflexão
+        const contentArray = [];
+        $("div.entry-content.content-homilia").children("p, h3").each((i, el) => {
+            const text = $(el).text().trim();
+            if (text) {
+                contentArray.push(text);
+            }
+        });
+        
+        const content = contentArray.join("\n\n");
+
+        if (!title && !content) {
+            throw new Error("Não foi possível extrair o título e o conteúdo da página.");
+        }
+
+        const result = {
+            success: true,
+            date: today,
+            title: title || "Reflexão Diária",
+            content: content
+        };
+
+        // Salva no cache
+        cache = {
+            date: today,
+            data: result
+        };
+
+        return result;
+
+    } catch (error) {
+        console.error("Erro ao fazer scraping:", error.message);
+        throw error;
+    }
 }
-
-// export async function getImage(url) {
-//     const response = await fetch(url);
-//     const html = await response.text();
-//     const $ = cheerio.load(html);
-//     const imageUrl = $("img").first().attr("src");
-
-//     if (!imageUrl) {
-//         throw new Error("Nenhuma imagem encontrada na página");
-//     }
-
-//     return imageUrl;
-// }
-
-// export async function getDailyVerse() {
-//     const baseUrl = "https://discoverybiblestudy.org";
-
-//     const apiRes = await fetch("https://discoverybiblestudy.org/daily/api/", {
-//         headers: {
-//             "User-Agent": "Mozilla/5.0"
-//         }
-//     });
-
-//     const contentType = apiRes.headers.get("content-type");
-
-//     if (!contentType || !contentType.includes("application/json")) {
-//         const text = await apiRes.text();
-//         console.error("Resposta inesperada:", text.slice(0, 200));
-//         throw new Error("API não retornou JSON válido");
-//     }
-
-//     const apiData = await apiRes.json();
-
-
-//     const pageResponse = await fetch(apiData.verseUrl);
-//     const html = await pageResponse.text();
-
-//     const $ = cheerio.load(html);
-
-//     let imageUrl = $(".votd").attr("src");
-
-//     if (!imageUrl) {
-//         throw new Error("Imagem do verso não encontrada");
-//     }
-
-//     imageUrl = new URL(imageUrl, baseUrl).href;
-
-//     const ocrResult = await extractImage(imageUrl);
-
-//     return {
-//         imageUrl,
-//         ...ocrResult
-//     };
-// }
-
-
-
-
-// export async function extractImage(imageUrl) {
-//     const response = await fetch(imageUrl, {
-//         headers: {
-//             "User-Agent": "Mozilla/5.0"
-//         }
-//     });
-
-//     console.log("CONTENT-TYPE:", response.headers.get("content-type"));
-
-//     if (!response.headers.get("content-type")?.startsWith("image/")) {
-//         throw new Error("URL não retornou uma imagem válida");
-//     }
-
-//     const arrayBuffer = await response.arrayBuffer();
-//     const buffer = Buffer.from(arrayBuffer);
-
-//     const { data: { text } } = await Tesseract.recognize(buffer, "eng");
-
-//     // const translatedText = await translateText(text, "pt");
-
-//     return {
-//         originalText: text.trim(),
-//         // translatedText: translatedText
-//     }
-// }
-
